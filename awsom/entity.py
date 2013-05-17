@@ -46,6 +46,7 @@ class Entity(object):
         for e in self._children.values():
             if e._valid: e._invalidate()
         self._children = {}
+        self._populated = False
     def _get_connection(self):
         """
         Convenience method for obtaining the connection relative to the entity
