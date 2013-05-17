@@ -5,7 +5,7 @@ setup(
     description = ("Browse your AWS resources using a hierarchical object model"),
     author = "David Losada Carballo",
     author_email = "david@tuxpiper.com",
-    version = "0.0.2",
+    version = "0.0.3",
     packages = find_packages(),
     license = 'MIT',
     keywords = "aws internet cloud",
