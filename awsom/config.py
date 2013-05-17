@@ -1,4 +1,4 @@
-from awsom.entity import Entity
+from awsom.entity import Entity, Factory
 from os import getenv, path
 
 from yaml import load as yload, dump as ydump
@@ -69,9 +69,9 @@ class BotoConnection(object):
     def set_connection_class(self, the_class):
         self.connection_class = the_class
     def get_connection(self):
-        if not self.connection_class:
+        if self.connection_class == None:
             raise Exception("Connection disabled")
-        self.connection_class(self.conn_args)
+        return self.connection_class(**self.conn_args)
     def clone(self):
         """
         Return a copy of the connection object
@@ -82,7 +82,7 @@ class BotoConnection(object):
 
 class AccountEntity(Entity):
     def __init__(self, parent, name, **attrs):
-        super(AccountEntity, self).__init__(parent=parent,name=name)
+        super(AccountEntity, self).__init__(parent=parent, name=name, factory=AccountFactory(self))
         # Bind to configuration
         global config
         if name in config.get_account_names():
@@ -117,3 +117,11 @@ class AccountEntity(Entity):
         global config
         config.save()
 
+class AccountFactory(Factory):
+    def __init__(self, entity):
+        super(AccountFactory, self).__init__(entity)
+    def populate(self):
+        # Add access to AWS services
+        from awsom.services.ec2 import EC2RootEntity
+        self.entity._add_child("ec2", EC2RootEntity(parent=self.entity))
+        return True

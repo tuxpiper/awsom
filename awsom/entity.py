@@ -155,7 +155,7 @@ class Entity(object):
             attr_val = super(Entity,self).__getattribute__(attr)
             if callable(attr_val): ret = ret + "    .%s()\n" % attr
             else: ret = ret + "    ." + attr + "\n"
-        ret = ret + "  Children:\n"
+        ret = ret + "  Children (%d):\n" % len(self)
         for k in self:
             ret = ret + "    ['%s']\n" % k
         return ret
