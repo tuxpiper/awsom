@@ -11,6 +11,7 @@ setup(
     keywords = "aws internet cloud",
     long_description = open('README.md').read(),
     url = "http://github.com/tuxpiper/awsom",
+    zip_safe = True,
     classifiers=[
        "Development Status :: 1 - Planning",
        "Topic :: System",
