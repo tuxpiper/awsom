@@ -19,10 +19,10 @@ class ModelRootEntity(Entity):
 
 # Upon import, the registered accounts should be loaded into the model root, so the
 # recommended usage would be something like:
-#    from awsom import model as aws
+#    from awsom import aws
 # So you can do something like:
-#	 aws.add_account('devel_ls', access_key_id=xxxx, secret_access_key=yyyy)
+#	 aws.add_account('acc1', access_key_id=xxxx, secret_access_key=yyyy)
 # and then:
-#    aws.devel_ls.ec2.instances
+#    print aws.acc1.ec2.instances
 
-model = ModelRootEntity(name='model')
+aws = ModelRootEntity(name='aws')
