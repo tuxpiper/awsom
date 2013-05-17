@@ -8,12 +8,12 @@ class ModelRootFactory(Factory):
     def populate(self):
         # Attach all configuration-defined accounts as children of the entity
         for account in config.get_account_names():
-            self.entity[account] = AccountEntity(**config.get_account(account))
+            self.entity._add_child(account, AccountEntity(parent=self.entity, **config.get_account(account)))
         return True
 
 class ModelRootEntity(Entity):
-    def __init__(self):
-        super(ModelRootEntity, self).__init__(factory=ModelRootFactory(self))
+    def __init__(self, name):
+        super(ModelRootEntity, self).__init__(factory=ModelRootFactory(self),name=name)
     def add_account(self, name, **attrs):
         self[name] = AccountEntity(name, **attrs)
 
@@ -25,4 +25,4 @@ class ModelRootEntity(Entity):
 # and then:
 #    aws.devel_ls.ec2.instances
 
-model = ModelRootEntity()
+model = ModelRootEntity(name='model')

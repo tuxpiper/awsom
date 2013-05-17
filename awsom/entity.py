@@ -8,14 +8,15 @@ class Entity(object):
       * children (dictionary with entity IDs as keys) 
       * entity attributes
     """
-    def __init__(self, parent=None, connection=None, factory=None):
+    def __init__(self, parent=None, connection=None, factory=None, name="[entity]"):
         self._parent = parent
-        self._connection = connection or (parent and parent._connection)
+        self._connection = connection or ((parent != None) and parent._connection)
         self._factory = factory
         self._children = {}
         self._populated = False
         self._entity_attrs = {}
         self._valid = True
+        self.add_attr("name", name)
     def find(self, **criteria):
         """
         Traverse tree to find all entities that comply with the given criteria
@@ -35,6 +36,9 @@ class Entity(object):
         """
         self._valid = False
         self._invalidate_children()
+    def _add_child(self, name, value):
+        """ Add/set a child of this entity"""
+        self._children[name] = value
     def _invalidate_children(self):
         """
         Invalidates and unlists entities' children
@@ -97,8 +101,9 @@ class Entity(object):
         else:
             super(Entity,self).__setattr__(name, value)
     # Operators to emulate container type
-    def __len__(self, key):
+    def __len__(self):
         """ Return children count """
+        self._populate()
         return len(self._children)
     def __getitem__(self, key):
         """
@@ -110,44 +115,62 @@ class Entity(object):
         else:
             raise KeyError("Child %s doesn't exist" % key)
     def __setitem__(self, key, value):
-        """ Add/set child """
-        self._children[key] = value
+        raise Exception("Unsupported")
     def __delitem__(self, key):
-        """ Remove child """
-        del self._children[key]
+        raise Exception("Unsupported")
     def __iter__(self):
         """ Iterate through child IDs """
+        self._populate()
         return self._children.__iter__()
     def __contains__(self, item):
         """ Entity contains child with id """
+        self._populate()
         return self._children.has_key(item)
     # Printing and other
-    def dump(self):
-        ret = ""
+    def _get_breadcrumbs_str(self):
+        """ Return string representing the path of this entity within the tree """
+        ret = self.name
+        p = self._parent
+        while p:
+            ret = p.name + " > " + ret
+            p = p._parent
+        return ret
+    def __str__(self):
+        """ Return print out of the entity """
+        ret = self._get_breadcrumbs_str() + "\n"
+        ret = ret + "  Type: %s\n" % str(self.__class__)
+        ret = ret + "  Attributes:\n"
         for attr in sorted(self._entity_attrs.keys()):
             val = self.__getattribute__(attr)
             if val:
-                ret = ret + "  ." + attr + " = " + self.__getattribute__(attr) + "\n"
+                if isinstance(val, str):
+                    ret = ret + "    .%s = \"%s\"\n" % (attr, val)
+                else:
+                    ret = ret + "    .%s = %s\n" % (attr, str(val))
             else:
-                ret = ret + "  ." + attr + " = \n"
+                ret = ret + "    .%s = (unset)\n" % attr
+        ret = ret + "  Methods:\n"
         for attr in sorted(dir(self)):
             if attr[0] == "_": continue
             attr_val = super(Entity,self).__getattribute__(attr)
-            if callable(attr_val): ret = ret + "  ." + attr + "()" + "\n"
-            else: ret = ret + "  ." + attr + "\n"
+            if callable(attr_val): ret = ret + "    .%s()\n" % attr
+            else: ret = ret + "    ." + attr + "\n"
+        ret = ret + "  Children:\n"
+        for k in self:
+            ret = ret + "    ['%s']\n" % k
         return ret
     
 class Factory(object):
-	"""
-	A factory fills up an entity object with the appropriate children
-	"""
-	def __init__(self, entity):
-		self.entity = entity
-	def populate(self):
-		"""
-		This method creates the entity children. Return True if the operation
-		has been successful
-		"""
-		return True
+    """
+    A factory populates an entity object with the appropriate children
+    """
+    def __init__(self, entity):
+        self.entity = entity
+    def populate(self):
+        """
+        This method creates the entity children. Return True if the operation
+        has been successful
+        """
+        return True
 
 

@@ -81,8 +81,8 @@ class BotoConnection(object):
         return c
 
 class AccountEntity(Entity):
-    def __init__(self, name, **attrs):
-        super(AccountEntity, self).__init__()
+    def __init__(self, parent, name, **attrs):
+        super(AccountEntity, self).__init__(parent=parent,name=name)
         # Bind to configuration
         global config
         if name in config.get_account_names():
@@ -90,7 +90,6 @@ class AccountEntity(Entity):
         else:
             self._entity_attrs = config.add_account(name)
             # Make sure all essential attributes are defined
-            self.add_attr("name", name)
             self.add_attr("access_key_id")
             self.add_attr("secret_access_key")
             # Copy in attributes
@@ -108,7 +107,7 @@ class AccountEntity(Entity):
         # Internal attributes don't trigger anything
         if name[0] == "_": return
         # If connection credentials are modified invalidate children and
-        # create connection
+        # re-create connection
         if name in [ "access_key_id", "secret_access_key" ]:
             self._invalidate_children()
             self._connection = BotoConnection(
