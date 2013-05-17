@@ -15,7 +15,7 @@ class ModelRootEntity(Entity):
     def __init__(self, name):
         super(ModelRootEntity, self).__init__(factory=ModelRootFactory(self),name=name)
     def add_account(self, name, **attrs):
-        self[name] = AccountEntity(name, **attrs)
+        self._add_child(name, AccountEntity(parent=self, name=name, **attrs))
 
 # Upon import, the registered accounts should be loaded into the model root, so the
 # recommended usage would be something like:
