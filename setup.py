@@ -22,5 +22,5 @@ setup(
     ],
     
     # We use boto for interacting with AWS services, YAML for storing configuration
-    install_requires = ['boto>=2.7.0', 'PyYAML==3.10']    
+    install_requires = ['boto>=2.7.0', 'PyYAML==5.1']    
 )
